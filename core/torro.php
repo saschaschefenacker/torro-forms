@@ -70,6 +70,7 @@ final class Torro {
 		require_once( $this->get_path( 'core/managers/class-access-controls-manager.php' ) );
 		require_once( $this->get_path( 'core/managers/class-result-handlers-manager.php' ) );
 		require_once( $this->get_path( 'core/managers/class-extensions-manager.php' ) );
+		require_once( $this->get_path( 'core/managers/class-field-mappers-manager.php' ) );
 
 		// load instance manager classes
 		require_once( $this->get_path( 'core/managers/class-instance-manager.php' ) );
@@ -246,6 +247,16 @@ final class Torro {
 	 */
 	public function extensions() {
 		return Torro_Extensions_Manager::instance();
+	}
+
+	/**
+	 * Field Mappers keychain function
+	 *
+	 * @return null|Torro_Field_Mappers_Manager
+	 * @since 1.1.0
+	 */
+	public function field_mappers() {
+		return Torro_Field_Mappers_Manager::instance();
 	}
 
 	/**
