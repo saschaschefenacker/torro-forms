@@ -79,6 +79,10 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 == Changelog ==
 
+= 1.1.0 =
+
+* Enhanced: The cache controller now supports global errors for form submissions.
+
 = 1.0.0-beta.6 =
 
 * Enhanced: Added unit test framework

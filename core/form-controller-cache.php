@@ -64,6 +64,19 @@ class Torro_Form_Controller_Cache {
 	}
 
 	/**
+	 * Adds a global error.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param Torro_Error $error
+	 */
+	public function add_global_error( $error ) {
+		$messages = $this->get( 'global_error' );
+
+		$this->set( 'global_error', array_merge( $messages, $error->get_error_messages() ) );
+	}
+
+	/**
 	 * Setting values by key
 	 *
 	 * @param $key
@@ -83,6 +96,21 @@ class Torro_Form_Controller_Cache {
 	 */
 	public function get_response() {
 		return $this->get( 'response' );
+	}
+
+	/**
+	 * Retrieves the current global error.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return array Array of error messages or empty array.
+	 */
+	public function get_global_error() {
+		$error = $this->get( 'global_error' );
+
+		$this->delete( 'global_error' );
+
+		return $error;
 	}
 
 	/**
