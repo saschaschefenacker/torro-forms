@@ -68,6 +68,10 @@ abstract class Torro_Field_Mapper extends Torro_Base {
 			return $form;
 		}
 
+		if ( ! $this->is_active_for_form( $form_id ) ) {
+			return new Torro_Error( 'mapper_not_enabled', sprintf( __( 'The mapper %1$s is not enabled for form %2$s.', 'torro-forms' ), $this->title, $form_id ) );
+		}
+
 		$mappings = $this->fields;
 		foreach ( $form->elements as $element ) {
 			$settings = $element->settings;
@@ -159,7 +163,7 @@ abstract class Torro_Field_Mapper extends Torro_Base {
 			return $status;
 		}
 
-		if ( ! get_post_meta( $form_id, $this->name . '_mapping_active', true ) ) {
+		if ( ! $this->is_active_for_form( $form_id ) ) {
 			return $status;
 		}
 
@@ -170,6 +174,18 @@ abstract class Torro_Field_Mapper extends Torro_Base {
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Checks whether this mapper is active for a specific form.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $form_id
+	 * @return bool
+	 */
+	public function is_active_for_form( $form_id ) {
+		return (bool) get_post_meta( $form_id, $this->name . '_mapping_active', true );
 	}
 
 	/**

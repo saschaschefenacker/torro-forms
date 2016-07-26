@@ -36,6 +36,15 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 
 	protected function __construct() {
 		parent::__construct();
+
+		add_filter( 'torro_formbuilder_element_tabs', array( $this, 'admin_tabs' ), 10, 2 );
+	}
+
+	public function __call( $method_name, $args ) {
+		switch ( $method_name ) {
+			case 'admin_tabs':
+				return call_user_func_array( array( $this, $method_name ), $args );
+		}
 	}
 
 	protected function allowed_modules(){
@@ -47,5 +56,41 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 
 	protected function get_category() {
 		return 'field_mappers';
+	}
+
+	protected function admin_tabs( $tabs, $element ) {
+		$mappers = $this->get_all_registered();
+		if ( empty( $mappers ) ) {
+			return $tabs;
+		}
+
+		$container = torro()->containers()->get( $element->container_id );
+		if ( is_wp_error( $container ) ) {
+			return $tabs;
+		}
+
+		foreach ( $mappers as $mapper ) {
+			$tab = $this->get_mapper_element_tab( $mapper, $container->form_id );
+			if ( ! is_wp_error( $tab ) ) {
+				$tabs[] = $tab;
+			}
+		}
+
+		return $tabs;
+	}
+
+	protected function get_mapper_element_tab( $mapper, $form_id ) {
+		$mappings = $mapper->get_mappings( $form_id );
+		if ( is_wp_error( $mappings ) ) {
+			return $mappings;
+		}
+
+		//TODO: return tab
+		$tab = array(
+			'title'		=> $mapper->title,
+			'content'	=> '<div>TODO</div>',
+		);
+
+		return $tab;
 	}
 }
