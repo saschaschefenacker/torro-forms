@@ -117,8 +117,8 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 		);
 
 		$mapping_fields = $mapper->get_fields();
-		foreach ( $mapping_fields as $slug => $field ) {
-			$field['values'][ $slug ] = $field['title'];
+		foreach ( $mapping_fields as $slug => $mapping_field ) {
+			$field['values'][ $slug ] = $mapping_field['title'];
 		}
 
 		$output = '';
