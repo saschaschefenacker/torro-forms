@@ -574,7 +574,7 @@ abstract class Torro_Element_Type extends Torro_Base {
 	 * @return string $html The field HTML
 	 * @since 1.0.0
 	 */
-	protected function admin_widget_settings_field( $name, $field, $element ) {
+	public function admin_widget_settings_field( $name, $field, $element ) {
 		$value = '';
 
 		if ( isset( $element->settings[ $name ] ) && isset( $element->settings[ $name ]->id ) ) {

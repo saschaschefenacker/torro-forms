@@ -70,8 +70,8 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 		}
 
 		foreach ( $mappers as $mapper ) {
-			$tab = $this->get_mapper_element_tab( $mapper, $container->form_id );
-			if ( ! is_wp_error( $tab ) ) {
+			$tab = $this->get_mapper_element_tab( $mapper, $element->id, $container->form_id );
+			if ( $tab ) {
 				$tabs[] = $tab;
 			}
 		}
@@ -79,18 +79,48 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 		return $tabs;
 	}
 
-	protected function get_mapper_element_tab( $mapper, $form_id ) {
-		$mappings = $mapper->get_mappings( $form_id );
-		if ( is_wp_error( $mappings ) ) {
-			return $mappings;
+	protected function get_mapper_element_tab( $mapper, $element_id, $form_id ) {
+		$content = $this->render_mapper_element_tab_content( $mapper, $element_id, $form_id );
+		if ( empty( $content ) ) {
+			return false;
 		}
 
-		//TODO: return tab
-		$tab = array(
+		return array(
+			'slug'		=> $mapper->name,
 			'title'		=> $mapper->title,
-			'content'	=> '<div>TODO</div>',
+			'content'	=> $content,
+		);
+	}
+
+	protected function render_mapper_element_tab_content( $mapper, $element_id, $form_id ) {
+		if ( ! $mapper->is_active_for_form( $form_id ) ) {
+			return '';
+		}
+
+		$element = torro()->elements()->get( $element_id );
+		if ( is_wp_error( $element ) ) {
+			// Create a dummy element (needed for AJAX).
+			$element = new Torro_Element( $element_id );
+		}
+		$element_type = $element->type_obj;
+
+		$field = array(
+			'title'			=> __( 'Mapped Field', 'torro-forms' ),
+			'description'	=> __( 'Select the field you would like to map the element to.', 'torro-forms' ),
+			'type'			=> 'select',
+			'values'		=> array(
+				''				=> __( 'Choose a field...', 'torro-forms' ),
+			),
+			'default'		=> '',
 		);
 
-		return $tab;
+		$mapping_fields = $mapper->get_fields();
+		foreach ( $mapping_fields as $slug => $field ) {
+			$field['values'][ $slug ] = $field['title'];
+		}
+
+		$output = $element_type->admin_widget_settings_field( $mapper->name . '_mapping', $field, $element );
+
+		return $output;
 	}
 }

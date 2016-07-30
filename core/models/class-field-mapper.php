@@ -282,9 +282,9 @@ abstract class Torro_Field_Mapper extends Torro_Base {
 			}
 
 			if ( $value > $max ) {
-				return new Torro_Error( 'invalid_value', sprintf( __( 'The value %s is too high.', 'torro-forms' ), $value ) );
+				return new Torro_Error( 'invalid_value', sprintf( __( 'The value %s is too high.', 'torro-forms' ), number_format_i18n( $value ) ) );
 			} elseif ( $value < $min ) {
-				return new Torro_Error( 'invalid_value', sprintf( __( 'The value %s is too low.', 'torro-forms' ), $value ) );
+				return new Torro_Error( 'invalid_value', sprintf( __( 'The value %s is too low.', 'torro-forms' ), number_format_i18n( $value ) ) );
 			}
 		}
 

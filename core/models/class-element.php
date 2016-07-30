@@ -101,8 +101,8 @@ class Torro_Element extends Torro_Instance_Base {
 
 		$this->type_obj = torro()->element_types()->get_registered( $this->type );
 		if ( is_wp_error( $this->type_obj ) ) {
-			//TODO: handle error here
-			return;
+			// Default to textfield.
+			$this->type_obj = torro()->element_types()->get_registered( 'textfield' );
 		}
 
 		$this->prepopulate_settings();
