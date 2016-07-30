@@ -23,6 +23,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class Torro_Field_Mapper extends Torro_Base {
 
 	/**
+	 * The title to show in the admin.
+	 *
+	 * @since 1.1.0
+	 * @var string
+	 */
+	protected $admin_title = '';
+
+	/**
+	 * The description to show in the admin.
+	 *
+	 * @since 1.1.0
+	 * @var string
+	 */
+	protected $admin_description = '';
+
+	/**
 	 * The fields this mapper requires.
 	 *
 	 * These should be declared in the `init` method.

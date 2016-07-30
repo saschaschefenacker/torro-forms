@@ -38,11 +38,16 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 		parent::__construct();
 
 		add_filter( 'torro_formbuilder_element_tabs', array( $this, 'admin_tabs' ), 10, 2 );
+
+		torro()->ajax()->register_action( 'get_field_mapper_tab', array(
+			'callback'	=> array( $this, 'ajax_get_field_mapper_tab' ),
+		) );
 	}
 
 	public function __call( $method_name, $args ) {
 		switch ( $method_name ) {
 			case 'admin_tabs':
+			case 'ajax_get_field_mapper_tab':
 				return call_user_func_array( array( $this, $method_name ), $args );
 		}
 	}
@@ -80,23 +85,20 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 	}
 
 	protected function get_mapper_element_tab( $mapper, $element_id, $form_id ) {
-		$content = $this->render_mapper_element_tab_content( $mapper, $element_id, $form_id );
-		if ( empty( $content ) ) {
+		if ( ! $mapper->is_active_for_form( $form_id ) ) {
 			return false;
 		}
 
+		$content = $this->render_mapper_element_tab_content( $mapper, $element_id, $form_id );
+
 		return array(
 			'slug'		=> $mapper->name,
-			'title'		=> $mapper->title,
+			'title'		=> $mapper->admin_title,
 			'content'	=> $content,
 		);
 	}
 
 	protected function render_mapper_element_tab_content( $mapper, $element_id, $form_id ) {
-		if ( ! $mapper->is_active_for_form( $form_id ) ) {
-			return '';
-		}
-
 		$element = torro()->elements()->get( $element_id );
 		if ( is_wp_error( $element ) ) {
 			// Create a dummy element (needed for AJAX).
@@ -119,8 +121,44 @@ final class Torro_Field_Mappers_Manager extends Torro_Manager {
 			$field['values'][ $slug ] = $field['title'];
 		}
 
-		$output = $element_type->admin_widget_settings_field( $mapper->name . '_mapping', $field, $element );
+		$output = '';
+
+		if ( ! empty( $mapper->admin_description ) ) {
+			$output .= '<p class="description">' . $mapper->admin_description . '</p>';
+		}
+
+		$output .= $element_type->admin_widget_settings_field( $mapper->name . '_mapping', $field, $element );
 
 		return $output;
+	}
+
+	protected function ajax_get_field_mapper_tab( $data ) {
+		if ( ! isset( $data['name'] ) ) {
+			return new Torro_Error( 'missing_name', __( 'Missing mapper name.', 'torro-forms' ) );
+		}
+
+		$mapper = $this->get_registered( $data['name'] );
+		if ( is_wp_error( $mapper ) ) {
+			return new Torro_Error( 'invalid_name', __( 'Invalid mapper name.', 'torro-forms' ) );
+		}
+
+		if ( ! isset( $data['form_id'] ) ) {
+			return new Torro_Error( 'missing_form_id', __( 'Missing form ID.', 'torro-forms' ) );
+		}
+
+		if ( ! isset( $data['element_ids'] ) ) {
+			return new Torro_Error( 'missing_element_ids', __( 'Missing element IDs.', 'torro-forms' ) );
+		}
+
+		$tabs = array();
+		foreach ( $data['element_ids'] as $element_id ) {
+			$tabs[ $element_id ] = array(
+				'slug'		=> $mapper->name,
+				'title'		=> $mapper->admin_title,
+				'content'	=> $this->render_mapper_element_tab_content( $mapper, $element_id, $form_id ),
+			);
+		}
+
+		return $tabs;
 	}
 }
