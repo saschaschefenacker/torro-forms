@@ -243,6 +243,10 @@ class Torro_Init {
 	 * @since 1.0.0
 	 */
 	public static function enqueue_frontend_styles() {
+		if( ! torro()->is_form() ) {
+			return;
+		}
+
 		$settings = torro_get_settings( 'general' );
 
 		if( isset( $settings[ 'frontend_css' ] ) && ! is_array( $settings[ 'frontend_css' ] ) ){
@@ -258,7 +262,7 @@ class Torro_Init {
 	 * @since 1.0.0
 	 */
 	private static function setup() {
-		$script_db_version  = '1.0.7';
+		$script_db_version  = '1.0.8';
 		$current_db_version = get_option( 'torro_db_version' );
 
 
@@ -297,6 +301,13 @@ class Torro_Init {
 				require_once( 'includes/updates/to_1.0.7.php' );
 				torro_forms_to_1_0_7();
 				update_option( 'torro_db_version', '1.0.7' );
+			}
+
+			// Upgrading from Torro DB version 1.0.7 to 1.0.8
+			if ( true === version_compare( $current_db_version, '1.0.8', '<' ) ) {
+				require_once( 'includes/updates/to_1.0.8.php' );
+				torro_forms_to_1_0_8();
+				update_option( 'torro_db_version', '1.0.8' );
 			}
 		} elseif ( false === self::is_installed() ) {
 			// Fresh Torro DB install
@@ -424,6 +435,7 @@ CREATE TABLE $wpdb->torro_email_notifications (
 	notification_name text NOT NULL,
 	from_name text NOT NULL,
 	from_email text NOT NULL,
+	reply_email text NOT NULL,
 	to_name text NOT NULL,
 	to_email text NOT NULL,
 	subject text NOT NULL,
@@ -697,6 +709,17 @@ CREATE TABLE $wpdb->torro_email_notifications (
 	}
 }
 
+/**
+ * Executes a callback after Torro Forms has been initialized.
+ *
+ * This function should be used by all Torro Forms extensions to initialize themselves.
+ *
+ * This doc block was added in the 1500th commit :)
+ *
+ * @since 1.0.0
+ *
+ * @param callable $callback Callback to bootstrap the extension.
+ */
 function torro_load( $callback ) {
 	if ( did_action( '_torro_loaded' ) || doing_action( '_torro_loaded' ) ) {
 		call_user_func( $callback );

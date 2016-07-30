@@ -170,13 +170,22 @@ class Torro_Element extends Torro_Instance_Base {
 			'type'				=> $this->type_obj->to_json( $this ),
 		);
 
-		if ( isset( $element->settings['description'] ) && ! empty( $element->settings['description']->value ) ) {
-			$data['description'] = $element->settings['description']->value;
+		if ( isset( $this->settings['description'] ) && ! empty( $this->settings['description']->value ) ) {
+			$data['description'] = $this->settings['description']->value;
 		}
 
 		if ( isset( $this->settings['required'] ) && 'yes' === $this->settings['required']->value ) {
 			$data['required'] = true;
 		}
+
+		/**
+		 * Filters the data sent to the element template, based on the element type.
+		 *
+		 * This filter can be used by special element types if they need to adjust their wrapper template data.
+		 *
+		 * @since 1.0.0
+		 */
+		$data = apply_filters( 'torro_element_data_' . $this->type, $data, $this );
 
 		return $data;
 	}
